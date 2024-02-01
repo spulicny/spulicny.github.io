@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gold Collector</title>
+  <style>
+    #basket {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: brown;
+    }
+    
+    .gold {
+      position: absolute;
+      background: gold;
+      border-radius: 50%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="basket"></div>
+  
+  <div id="score">0</div>
+
+  <div id="timer">60</div>
+
+  <script>
+    const basket = document.getElementById("basket");
+    let score = 0;
+    let timeLeft = 60;
+    
+    function updateScore() {
+      document.getElementById("score").textContent = score;
+    }
+    
+    function updateTimer() {
+      document.getElementById("timer").textContent = timeLeft;
+    }
+    
+    function spawnGold() {
+      const gold = document.createElement("div");
+      gold.classList.add("gold");
+      gold.style.left = Math.random() * 500 + "px"; 
+      gold.style.width = Math.random() * 50 + 50 + "px";
+      gold.style.height = gold.style.width;
+      
+      document.body.appendChild(gold);
+      
+      moveGold(gold);
+    }
+    
+    function moveGold(gold) {
+      const id = setInterval(function() {
+        gold.style.top = gold.offsetTop + 5 + "px";
+        
+        // Check if gold hits the basket
+        if (collision(gold, basket)) {
+          clearInterval(id);
+          document.body.removeChild(gold);
+          score++;
+          updateScore();
+        }
+        
+        // Remove gold if it falls off screen
+        if (gold.offsetTop > 500) {
+          clearInterval(id);
+          document.body.removeChild(gold); 
+        }
+      }, 20); 
+    }
+    
+    function collision(a, b) {
+      const aRect = a.getBoundingClientRect();
+      const bRect = b.getBoundingClientRect();
+
+      return !(
+        aRect.top + aRect.height < bRect.top || 
+        aRect.top > bRect.top + bRect.height ||
+        aRect.left + aRect.width < bRect.left ||
+        aRect.left > bRect.left + bRect.width
+      );
+    }
+    
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "ArrowLeft" && basket.offsetLeft > 0) {
+        basket.style.left = basket.offsetLeft - 10 + "px";
+      }
+      else if (e.key === "ArrowRight" && basket.offsetLeft < 500) {
+        basket.style.left = basket.offsetLeft + 10 + "px";
+      }
+    });
+    
+    setInterval(function() {
+      timeLeft--;
+      updateTimer();
+      
+      if (timeLeft === 0) {
+        alert("Time's up! Your final score is " + score);
+        document.location.reload();
+      }
+      
+      spawnGold(); 
+    }, 1000);
+    
+  </script>
+
+</body>
+</html>
